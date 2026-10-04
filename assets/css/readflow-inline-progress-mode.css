@@ -1,0 +1,8 @@
+/* Automatic inline mode only; manual shortcode/block styling remains unchanged. */
+.readflow-inline-progress-auto { margin-block: 1em; max-width: 100%; }
+.readflow-inline-progress-auto .readflow-inline-progress { display: flex; width: 100%; }
+.readflow-inline-progress-auto .readflow-inline-progress[hidden] { display: none; }
+.readflow-inline-progress-auto .readflow-inline-track { flex: 1; max-width: none; min-width: 0; }
+@media (prefers-reduced-motion: reduce) {
+ .readflow-inline-progress-auto .readflow-progress-fill { transition: none; }
+}

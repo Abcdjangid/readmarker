@@ -1,0 +1,2 @@
+# Keep source line endings consistent across development platforms.
+* text=auto eol=lf

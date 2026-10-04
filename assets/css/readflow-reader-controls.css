@@ -1,0 +1,105 @@
+.readflow-reader-controls {
+ position: relative;
+ margin-block: .75rem;
+ max-inline-size: 100%;
+ font: 14px/1.5 system-ui, sans-serif;
+ color: var(--readflow-color, #334155);
+}
+.readflow-reader-controls[hidden], .readflow-reader-controls [hidden] { display: none; }
+.readflow-reader-controls button {
+ box-sizing: border-box;
+ max-inline-size: 100%;
+ font: inherit;
+ font-weight: 500;
+ line-height: 1.5;
+ text-transform: none;
+ letter-spacing: normal;
+ color: inherit;
+ background: transparent;
+ border: 1px solid var(--readflow-border, #cbd5e1);
+ border-radius: 6px;
+ padding: .5rem .75rem;
+ cursor: pointer;
+}
+.readflow-reader-controls button:hover:not(:disabled) {
+ background: var(--readflow-background, #f1f5f9);
+ border-color: currentColor;
+}
+.readflow-reader-controls button:active:not(:disabled) {
+ background: var(--readflow-border, #cbd5e1);
+}
+.readflow-reader-controls button:disabled { opacity: .6; cursor: default; }
+.readflow-reader-controls button:focus-visible { outline: 2px solid #2271b1; outline-offset: 3px; }
+.readflow-reader-controls [data-reader-toggle] {
+ padding: .5rem 1rem;
+ border-radius: 8px;
+ background: var(--readflow-background, #f1f5f9);
+ white-space: normal;
+ overflow-wrap: anywhere;
+ text-align: start;
+}
+.readflow-reader-controls [data-reader-toggle][aria-expanded="true"] { border-color: currentColor; }
+.readflow-reader-controls .readflow-reader-controls-label { font-weight: 600; }
+.readflow-reader-controls .readflow-reader-controls-summary { font-size: .9em; font-weight: 400; }
+.readflow-reader-controls [data-reader-panel] {
+ box-sizing: border-box;
+ inline-size: 26rem;
+ max-inline-size: 100%;
+ margin-block-start: .5rem;
+ padding: 1.25rem;
+ color: var(--readflow-color, #334155);
+ background: var(--readflow-background, #f1f5f9);
+ border: 1px solid var(--readflow-border, #cbd5e1);
+ border-radius: var(--readflow-radius, .65rem);
+ box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+}
+.readflow-reader-controls [data-reader-panel] > div {
+ display: grid;
+ grid-template-columns: minmax(0, 1fr) 2.75rem 5ch 2.75rem;
+ align-items: center;
+ gap: .5rem;
+ margin-block-end: 1rem;
+}
+.readflow-reader-controls [data-reader-panel] > div > span:first-child {
+ margin-inline-end: .5rem;
+ overflow-wrap: anywhere;
+}
+.readflow-reader-controls [data-reader-step] {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ inline-size: 2.75rem;
+ min-block-size: 2.75rem;
+ padding: .25rem;
+ font-size: 1.125rem;
+}
+.readflow-reader-controls [data-reader-value] {
+ text-align: center;
+ font-weight: 600;
+ font-variant-numeric: tabular-nums;
+ white-space: nowrap;
+}
+.readflow-reader-controls [data-reader-reset] {
+ margin-block-start: .25rem;
+ white-space: normal;
+ overflow-wrap: anywhere;
+}
+.readflow-reader-article { display: flow-root; }
+.readflow-reader-article.readflow-reader-width-adjusted { max-width: 100%; margin-inline: auto; }
+/* CSS-only visibility: preferences continue to apply when the controls are hidden. */
+@media (width < 782px) {
+ .readflow-reader-controls[data-reader-visibility="desktop"] { display: none; }
+}
+@media (min-width: 782px) {
+ .readflow-reader-controls[data-reader-visibility="mobile"] { display: none; }
+}
+@media (forced-colors: active) {
+ .readflow-reader-controls { color: CanvasText; }
+ .readflow-reader-controls [data-reader-panel] { color: CanvasText; background: Canvas; border-color: CanvasText; box-shadow: none; }
+ .readflow-reader-controls button,
+ .readflow-reader-controls [data-reader-toggle] { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
+ .readflow-reader-controls button:hover:not(:disabled),
+ .readflow-reader-controls button:active:not(:disabled) { color: HighlightText; background: Highlight; border-color: Highlight; }
+ .readflow-reader-controls button:disabled { color: GrayText; border-color: GrayText; opacity: 1; }
+ .readflow-reader-controls button:focus-visible { outline-color: Highlight; }
+}

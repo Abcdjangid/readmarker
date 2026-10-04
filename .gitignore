@@ -1,0 +1,47 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+auth.json
+wp-config.php
+wp-config-local.php
+wp-cli.local.yml
+/.aws/
+/.codex/
+/.agents/
+
+# Database dumps
+*.sql
+*.sql.*
+*.sqlite
+*.sqlite3
+*.db
+
+# Dependencies and editor metadata
+node_modules/
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+
+# OS and generated local files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.log
+*.tmp
+*.temp
+*.bak
+*~
+/coverage/
+/.phpunit.cache/
+/.phpunit.result.cache
+/.release/
+/.releases/

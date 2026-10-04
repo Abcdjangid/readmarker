@@ -1,0 +1,141 @@
+/* Contains floats/margins so the measurable wrapper includes its article. */
+.readflow-article-content { display: flow-root; }
+.readflow-progress {
+	position: fixed;
+	top: var(--readflow-progress-offset, 0px);
+	left: 0;
+	right: 0;
+	height: var(--readflow-progress-height, 3px);
+	/* Below WP's admin bar (99999) and typical modal layers; not an overlay. */
+	z-index: 1000;
+	pointer-events: none;
+	contain: layout paint;
+}
+.readflow-progress[hidden] { display: none; }
+.readflow-progress-fill {
+	width: 100%;
+	height: 100%;
+	background: var(--readflow-progress-color, #2563eb);
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform var(--readflow-progress-transition, 80ms linear);
+}
+.readflow-progress-indicator {
+	--readflow-progress-size: 56px;
+	--readflow-progress-font-size: 13px;
+	position: fixed;
+	right: max(12px, env(safe-area-inset-right, 0px));
+	bottom: max(12px, env(safe-area-inset-bottom, 0px));
+	z-index: 1000;
+	pointer-events: none;
+	box-sizing: border-box;
+	display: grid;
+	place-items: center;
+	width: var(--readflow-progress-size);
+	max-width: calc(100vw - 24px);
+	height: var(--readflow-progress-size);
+	border-radius: 50%;
+	background: #fff;
+	color: #1e293b;
+	font: 600 var(--readflow-progress-font-size)/1.2 system-ui, sans-serif;
+	font-variant-numeric: tabular-nums;
+}
+.readflow-progress-indicator[hidden] { display: none; }
+.readflow-progress-indicator--percentage {
+	height: auto;
+	min-height: 32px;
+	border: 2px solid var(--readflow-progress-color, #2563eb);
+	border-radius: 8px;
+	padding: 6px 4px;
+}
+.readflow-progress-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.readflow-progress-track, .readflow-progress-stroke { fill: none; stroke-width: 4; }
+.readflow-progress-track { stroke: #e2e8f0; }
+.readflow-progress-stroke { stroke: var(--readflow-progress-color, #2563eb); transition: stroke-dashoffset var(--readflow-progress-transition, 80ms linear); }
+.readflow-progress-value { position: relative; }
+.readflow-progress-indicator--remaining {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 0.25em;
+	width: max-content;
+	max-width: min(32rem, calc(100vw - 24px));
+	height: auto;
+	padding: 9px 12px;
+	border: 1px solid var(--readflow-progress-color, #2563eb);
+	border-radius: 8px;
+	line-height: 1.5;
+	overflow-wrap: anywhere;
+}
+.readflow-duration-prefix, .readflow-duration-value { min-width: 0; }
+.readflow-progress-indicator--remaining [hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+	.readflow-progress-fill, .readflow-progress-stroke { transition: none; }
+}
+@media (forced-colors: active) {
+	.readflow-progress-fill { background: Highlight; forced-color-adjust: none; }
+	.readflow-progress-indicator { background: Canvas; color: CanvasText; border-color: Highlight; }
+	.readflow-progress-track { stroke: GrayText; }
+	.readflow-progress-stroke { stroke: Highlight; }
+}
+/* Compact presentation consumer; shares fixed placement and safe-area spacing. */
+.readflow-floating-widget {
+	display: grid;
+	place-items: stretch;
+	gap: 6px;
+	width: 180px;
+	padding: 12px;
+	border-color: #cbd5e1;
+	border-radius: 10px;
+	box-shadow: 0 2px 12px rgb(15 23 42 / 12%);
+	pointer-events: none;
+}
+.readflow-floating-widget__percentage { font-size: 22px; line-height: 1.2; }
+.readflow-floating-widget__remaining { min-width: 0; font-weight: 400; }
+.readflow-floating-widget .readflow-duration-check { margin-inline-end: 0.25em; }
+.readflow-floating-widget__progress { height: 4px; overflow: hidden; border-radius: 2px; background: #e2e8f0; }
+.readflow-floating-widget__progress-fill {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: var(--readflow-progress-color, #2563eb);
+	transform: scaleX(0);
+	transform-origin: left center;
+	/* No animation: accurate during scrolling, including reduced-motion mode. */
+}
+@media (max-width: 480px) {
+	.readflow-floating-widget { width: 160px; padding: 10px; }
+	.readflow-floating-widget__percentage { font-size: 20px; }
+}
+@media (forced-colors: active) {
+	.readflow-floating-widget { border-color: CanvasText; box-shadow: none; }
+	.readflow-floating-widget__progress { background: Canvas; outline: 1px solid CanvasText; }
+	.readflow-floating-widget__progress-fill { background: Highlight; forced-color-adjust: none; }
+}
+/* Interactive opt-in prompt sits above the passive indicators while a decision is pending. */
+.readflow-position-prompt {
+ position: fixed; right: max(12px, env(safe-area-inset-right, 0px)); bottom: max(12px, env(safe-area-inset-bottom, 0px));
+ z-index: 1001; box-sizing: border-box; width: 280px; max-width: calc(100vw - 24px);
+ padding: 16px; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: #1e293b;
+ box-shadow: 0 2px 12px rgb(15 23 42 / 12%); font: 14px/1.5 system-ui, sans-serif; overflow-wrap: anywhere; pointer-events: auto;
+}
+.readflow-position-prompt[hidden] { display: none; }
+.readflow-position-prompt p { margin: 8px 0; }
+.readflow-position-prompt button { font: inherit; padding: 8px 12px; color: #fff; background: #1e293b; border: 1px solid currentColor; border-radius: 4px; cursor: pointer; }
+.readflow-position-prompt button:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+@media (forced-colors: active) {
+ .readflow-position-prompt { background: Canvas; color: CanvasText; border-color: CanvasText; box-shadow: none; }
+ .readflow-position-prompt button { background: ButtonFace; color: ButtonText; }
+ .readflow-position-prompt button:focus-visible { outline-color: Highlight; }
+}
+/* Manual consumers stay in article flow; no fixed positioning or theme selectors. */
+.readflow-inline-progress { display: inline-flex; align-items: center; gap: .5em; max-width: 100%; vertical-align: middle; }
+.readflow-inline-track { display: inline-block; width: 8em; max-width: 40vw; height: 4px; overflow: hidden; background: #e2e8f0; border-radius: 2px; }
+.readflow-inline-track .readflow-progress-fill { display: block; }
+.readflow-inline-remaining { display: inline; }
+.readflow-inline-progress[hidden], .readflow-inline-remaining[hidden] { display: none; }
+@media (forced-colors: active) {
+ .readflow-inline-track { border: 1px solid CanvasText; }
+ .readflow-inline-track .readflow-progress-fill { background: Highlight; forced-color-adjust: none; }
+}

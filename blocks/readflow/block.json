@@ -1,0 +1,19 @@
+{
+ "apiVersion": 3,
+ "name": "readflow/readflow",
+ "version": "0.1.0",
+ "title": "ReadFlow",
+ "description": "Display reading time, progress, word count, or remaining reading time.",
+ "category": "widgets",
+ "icon": "clock",
+ "textdomain": "readflow",
+ "attributes": {
+  "type": {"type":"string","default":"reading_time","enum":["reading_time","word_count","progress","remaining","combined"]},
+  "format": {"type":"string","default":"short","enum":["short","long","natural","clock","detailed"]},
+  "showLabel": {"type":"boolean","default":true},
+  "showPercentage": {"type":"boolean","default":true}
+ },
+ "usesContext": ["postId"],
+ "supports": {"html":false,"customClassName":false},
+ "editorScript": "readflow-block-editor"
+}

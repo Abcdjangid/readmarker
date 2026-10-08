@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
-const source = fs.readFileSync(require.resolve('../assets/js/readflow-settings-placement.js'), 'utf8');
+const source = fs.readFileSync(require.resolve('../assets/js/readmarker-settings-placement.js'), 'utf8');
 let checks = 0;
 const check = (value, label) => { assert.ok(value, label); checks++; };
 function target() {
@@ -31,7 +31,7 @@ class FormDataDouble {
  }
  entries() { return this.data.values(); }
 }
-const document = {getElementById(){return null;},querySelector(selector){check(selector === '.readflow-settings form[action="options.php"]','Scoped main form lookup');return form;}};
+const document = {getElementById(){return null;},querySelector(selector){check(selector === '.readmarker-settings form[action="options.php"]','Scoped main form lookup');return form;}};
 const context = {document,window,FormData:FormDataDouble};
 vm.runInNewContext(source,context);
 check(window.count('beforeunload')===0,'Initially clean');
@@ -62,7 +62,7 @@ check(!/localStorage|sessionStorage|document\.cookie|fetch\(|XMLHttpRequest|setT
 for(const unavailable of [undefined, class {}]) {
  const absentForm=Object.assign(target(),{dataset:{}});
  vm.runInNewContext(source,{document:{getElementById(){return null;},querySelector(){return absentForm;}},FormData:unavailable});
- check(absentForm.events.size===0 && !absentForm.dataset.readflowUnsavedInitialized,'Missing FormData/entries leaves native settings submission usable');
+ check(absentForm.events.size===0 && !absentForm.dataset.readmarkerUnsavedInitialized,'Missing FormData/entries leaves native settings submission usable');
 }
 
 {
@@ -70,7 +70,7 @@ for(const unavailable of [undefined, class {}]) {
  let options,initializations=0;
  function jquery(node){check(node===color,'Native picker targets existing Progress Color field');return {wpColorPicker(config){options=config;initializations++;config.change(null,{color:{toString:()=> '#000000'}});}};}
  jquery.fn={wpColorPicker(){}};window.jQuery=jquery;window.Event=class{constructor(type,options){this.type=type;this.bubbles=options.bubbles;}};
- document.getElementById=id=>id==='readflow-progress_color'?color:null;
+ document.getElementById=id=>id==='readmarker-progress_color'?color:null;
  vm.runInNewContext(source,context);
  check(color.value==='#2563eb'&&window.count('beforeunload')===0,'Saved color retained and initialization stays clean');
  options.change(null,{color:{toString:()=> '#ff0000'}});

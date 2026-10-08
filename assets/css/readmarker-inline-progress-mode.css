@@ -1,0 +1,8 @@
+/* Automatic inline mode only; manual shortcode/block styling remains unchanged. */
+.readmarker-inline-progress-auto { margin-block: 1em; max-width: 100%; }
+.readmarker-inline-progress-auto .readmarker-inline-progress { display: flex; width: 100%; }
+.readmarker-inline-progress-auto .readmarker-inline-progress[hidden] { display: none; }
+.readmarker-inline-progress-auto .readmarker-inline-track { flex: 1; max-width: none; min-width: 0; }
+@media (prefers-reduced-motion: reduce) {
+ .readmarker-inline-progress-auto .readmarker-progress-fill { transition: none; }
+}

@@ -1,7 +1,7 @@
 'use strict';
 // No packages or browser downloads. Geometry/lifecycle tests with explicit DOM doubles.
 const assert = require('node:assert/strict');
-const { calculate, Engine, TopBar, Circular, Percentage, DisplayManager, boot } = require('../assets/js/readflow-progress.js');
+const { calculate, Engine, TopBar, Circular, Percentage, DisplayManager, boot } = require('../assets/js/readmarker-progress.js');
 let checks = 0;
 function check(value, message) { assert.ok(value, message); checks++; }
 const geometry = { articleTop: 300, articleHeight: 1800, viewportHeight: 600 };
@@ -68,7 +68,7 @@ check(!new Engine(null, win).init(), 'missing article fails closed');
 const engine = new Engine(article, win);
 let notifications = 0;
 let detail = null;
-article.addEventListener('readflow:progress', event => { detail = event.detail; });
+article.addEventListener('readmarker:progress', event => { detail = event.detail; });
 const unsubscribe = engine.subscribe(() => notifications++);
 check(engine.init() && engine.init(), 'initialization idempotent');
 check(win.count() === 2 && engine.observer.targets.length === 2, 'single scroll/resize and article/body observer');
@@ -130,7 +130,7 @@ page.win.document.querySelectorAll = query => query.includes('article-content') 
 const session = boot(page.win);
 check(session === boot(page.win), 'page boot idempotent');
 page.win.flush();
-check(!barElement.hidden && barElement.style['--readflow-progress-offset'] === '32px', 'consumer offsets below admin bar');
+check(!barElement.hidden && barElement.style['--readmarker-progress-offset'] === '32px', 'consumer offsets below admin bar');
 check(fill.style.transform === 'scaleX(0)', 'consumer initial scale');
 page.win.scrollY = 900; session.engine.refresh(); page.win.flush();
 check(fill.style.transform === 'scaleX(0.5)', 'bar subscribes to engine');
@@ -155,7 +155,7 @@ function displayRoot(mode) {
 		elements[name] = {
 			hidden: true, style: { setProperty(key, value) { this[key] = value; } }, attributes: {}, value, stroke, fill,
 			setAttribute(key, value) { this.attributes[key] = value; },
-			querySelector(query) { return { '.readflow-progress-value': value, '.readflow-progress-stroke': stroke, '.readflow-progress-fill': fill }[query]; }
+			querySelector(query) { return { '.readmarker-progress-value': value, '.readmarker-progress-stroke': stroke, '.readmarker-progress-fill': fill }[query]; }
 		};
 	}
 	const root = { elements, restored: [], getAttribute: () => mode, appendChild(element) { this.restored.push(element); }, querySelector(query) { return elements[query.match(/="([^"]+)"/)[1]] || null; } };
@@ -224,7 +224,7 @@ remainingContext.win.scrollY = 780; // 40%.
 const remainingEngine = new Engine(remainingContext.article, remainingContext.win);
 remainingEngine.init(); remainingContext.win.flush();
 const remainingRoot = displayRoot('top_bar_percentage');
-remainingRoot.getAttribute = name => name === 'data-readflow-total-seconds' ? '600.5' : 'top_bar_percentage';
+remainingRoot.getAttribute = name => name === 'data-readmarker-total-seconds' ? '600.5' : 'top_bar_percentage';
 const remainingManager = new DisplayManager(remainingRoot, remainingContext.win);
 remainingManager.mount(remainingEngine);
 let remainingSnapshot;
@@ -250,10 +250,10 @@ for (const mode of ['remaining', 'time_remaining', 'percentage_remaining', 'coun
 		const value = textNode(), prefix = textNode(), checkmark = textNode();
 		const element = {
 			hidden: true,
-			getAttribute(name) { return name === 'data-readflow-total-label' ? '10 min read' : '{}'; },
-			querySelector(name) { return { '.readflow-duration-value': value, '.readflow-duration-prefix': prefix, '.readflow-duration-check': checkmark }[name]; }
+			getAttribute(name) { return name === 'data-readmarker-total-label' ? '10 min read' : '{}'; },
+			querySelector(name) { return { '.readmarker-duration-value': value, '.readmarker-duration-prefix': prefix, '.readmarker-duration-check': checkmark }[name]; }
 		};
-		const root = { getAttribute(name) { return name === 'data-readflow-mode' ? mode : '600'; }, querySelector() { return element; }, appendChild() {} };
+		const root = { getAttribute(name) { return name === 'data-readmarker-mode' ? mode : '600'; }, querySelector() { return element; }, appendChild() {} };
 		const manager = new DisplayManager(root, context.win);
 		check(manager.mount(source), `${mode} mount at ${initialRatio}`);
 		const verify = ratio => {
@@ -293,10 +293,10 @@ for (const initialRatio of [0, 0.5, 1]) {
 	const value = textNode('remaining'), prefix = textNode(), checkmark = textNode(), percentage = textNode('percentage');
 	const progress = { attributes: {}, setAttribute(name, value) { this.attributes[name] = value; writes.aria++; } };
 	const fill = { style: { value: '', get transform() { return this.value; }, set transform(value) { this.value = value; writes.fill++; } } };
-	const nodes = { '.readflow-duration-value': value, '.readflow-duration-prefix': prefix, '.readflow-duration-check': checkmark, '.readflow-floating-widget__percentage': percentage, '.readflow-floating-widget__progress': progress, '.readflow-floating-widget__progress-fill': fill };
+	const nodes = { '.readmarker-duration-value': value, '.readmarker-duration-prefix': prefix, '.readmarker-duration-check': checkmark, '.readmarker-floating-widget__percentage': percentage, '.readmarker-floating-widget__progress': progress, '.readmarker-floating-widget__progress-fill': fill };
 	const element = { hidden: true, getAttribute() { return '{}'; }, querySelector(name) { return nodes[name]; } };
 	let restored = 0;
-	const root = { getAttribute(name) { return name === 'data-readflow-mode' ? 'floating_widget' : '600'; }, querySelector() { return element; }, appendChild() { restored++; } };
+	const root = { getAttribute(name) { return name === 'data-readmarker-mode' ? 'floating_widget' : '600'; }, querySelector() { return element; }, appendChild() { restored++; } };
 	const manager = new DisplayManager(root, context.win);
 	check(manager.mount(source), 'widget mounts');
 	const consumer = manager.consumers[0];
@@ -341,10 +341,10 @@ for (const initialRatio of [0, 0.5, 1]) {
 	manager.destroy(); source.destroy();
 	check(context.win.count() === 0 && context.win.pending() === 0, 'widget leaves no listeners or animation frames');
 }
-const widgetSource = require('node:fs').readFileSync(require.resolve('../assets/js/readflow-progress.js'), 'utf8').split('class FloatingWidget')[1].split('class DisplayManager')[0];
+const widgetSource = require('node:fs').readFileSync(require.resolve('../assets/js/readmarker-progress.js'), 'utf8').split('class FloatingWidget')[1].split('class DisplayManager')[0];
 check(!/setInterval|setTimeout|requestAnimationFrame|addEventListener|getBoundingClientRect/.test(widgetSource), 'widget contains no timer, listener, scheduler or geometry reads');
 
-const { EstimatedFinishTime } = require('../assets/js/readflow-progress.js');
+const { EstimatedFinishTime } = require('../assets/js/readmarker-progress.js');
 const originalNow = Date.now;
 try {
  for (const initial of [0, 0.5, 1]) {
@@ -354,13 +354,13 @@ try {
   const source = new Engine(context.article, context.win); source.init(); context.win.flush();
   const value = { text: '', get textContent() { return this.text; }, set textContent(text) { this.text=text; writes++; } };
   const prefix = { hidden:true, textContent:'' }, mark = { hidden:true };
-  const element = { hidden:true, getAttribute() { return '{}'; }, querySelector(name) { return { '.readflow-duration-value':value, '.readflow-duration-prefix':prefix, '.readflow-duration-check':mark }[name]; } };
-  const root = { getAttribute(name) { return name === 'data-readflow-mode' ? 'estimated_finish_time' : '600'; }, querySelector() { return element; }, appendChild() {} };
+  const element = { hidden:true, getAttribute() { return '{}'; }, querySelector(name) { return { '.readmarker-duration-value':value, '.readmarker-duration-prefix':prefix, '.readmarker-duration-check':mark }[name]; } };
+  const root = { getAttribute(name) { return name === 'data-readmarker-mode' ? 'estimated_finish_time' : '600'; }, querySelector() { return element; }, appendChild() {} };
   const manager = new DisplayManager(root,context.win); manager.mount(source);
   const consumer = manager.consumers[0];
   check(consumer instanceof EstimatedFinishTime, 'manager selects finish consumer');
   const verify = ratio => {
-   const expected = ratio === 1 ? 'Finished' : 'Finish around ' + require('../assets/js/readflow-remaining-time.js').formatFinishTime(600*(1-ratio),sampledNow);
+   const expected = ratio === 1 ? 'Finished' : 'Finish around ' + require('../assets/js/readmarker-remaining-time.js').formatFinishTime(600*(1-ratio),sampledNow);
    check(value.textContent === expected && !element.hidden, 'finish correct immediate/current display');
    check(mark.hidden === (ratio !== 1), 'finish completion checkmark and backwards restoration');
   };
@@ -389,10 +389,10 @@ try {
   source.destroy(); check(context.win.count()===0, 'finish lifecycle fully cleaned up');
  }
 } finally { Date.now=originalNow; }
-const finishSource=require('node:fs').readFileSync(require.resolve('../assets/js/readflow-progress.js'),'utf8').split('class EstimatedFinishTime')[1].split('class FloatingWidget')[0];
+const finishSource=require('node:fs').readFileSync(require.resolve('../assets/js/readmarker-progress.js'),'utf8').split('class EstimatedFinishTime')[1].split('class FloatingWidget')[0];
 check(!/setInterval|setTimeout|requestAnimationFrame|addEventListener|getBoundingClientRect|MutationObserver/.test(finishSource),'finish has no timers, polling, listeners or geometry');
 
-const { calculateMilestones, MilestoneDisplay } = require('../assets/js/readflow-progress.js');
+const { calculateMilestones, MilestoneDisplay } = require('../assets/js/readmarker-progress.js');
 for (const ratio of [0,0.1,0.249,0.25,0.251,0.49,0.499,0.5,0.501,0.51,0.6,0.749,0.75,0.751,0.9,0.99,0.999,1]) {
  const state=calculateMilestones(ratio);
  const expected=[0.25,0.5,0.75,1].filter(value=>value<=ratio);
@@ -417,7 +417,7 @@ for (const initial of [0,0.1,0.25,0.5,0.63,0.75,1]) {
  const writes={label:0,value:0};
  const node=key=>({text:'',get textContent(){return this.text;},set textContent(value){this.text=value;writes[key]++;}});
  const label=node('label'),value=node('value');
- const element={hidden:true,getAttribute(){return '{}';},querySelector(name){return name==='.readflow-milestone__label'?label:value;}};
+ const element={hidden:true,getAttribute(){return '{}';},querySelector(name){return name==='.readmarker-milestone__label'?label:value;}};
  let restored=0;
  const root={getAttribute(){return 'reading_milestones';},querySelector(){return element;},appendChild(){restored++;}};
  const manager=new DisplayManager(root,context.win); check(manager.mount(source),'milestone manager mount');
@@ -444,17 +444,17 @@ for (const initial of [0,0.1,0.25,0.5,0.63,0.75,1]) {
  check(manager.mount(source),'milestone clean manager restart');manager.destroy();source.destroy();
  check(context.win.count()===0,'milestone full cleanup');
 }
-const milestoneSource=require('node:fs').readFileSync(require.resolve('../assets/js/readflow-progress.js'),'utf8').split('const milestoneThresholds')[1].split('class DisplayManager')[0];
+const milestoneSource=require('node:fs').readFileSync(require.resolve('../assets/js/readmarker-progress.js'),'utf8').split('const milestoneThresholds')[1].split('class DisplayManager')[0];
 check(!/setInterval|setTimeout|requestAnimationFrame|addEventListener|getBoundingClientRect|MutationObserver/.test(milestoneSource),'milestones have no timers, listeners, polling or geometry');
 
-const { calculateCompletionState } = require('../assets/js/readflow-progress.js');
+const { calculateCompletionState } = require('../assets/js/readmarker-progress.js');
 const completionCases=[[-1,'not_started'],[0,'not_started'],[0.0001,'reading'],[0.5,'reading'],[0.749,'reading'],[0.75,'almost_finished'],[0.7501,'almost_finished'],[0.751,'almost_finished'],[0.99,'almost_finished'],[1,'finished'],[1.0001,'finished'],[NaN,'not_started'],[Infinity,'not_started'],[-Infinity,'not_started'],[undefined,'not_started'],[null,'not_started'],['0.75','not_started']];
 for(const [ratio,status] of completionCases) {
  const state=calculateCompletionState(ratio);
  check(state.status===status,'completion normalized boundary '+String(ratio));
  check(state.isStarted===(status!=='not_started') && state.isAlmostFinished===(status==='almost_finished'||status==='finished') && state.isFinished===(status==='finished'),'completion flags');
  check(Object.isFrozen(state),'immutable completion');
- check(require('../assets/js/readflow-remaining-time.js').calculate(600,ratio).completed===state.isFinished,'remaining completion uses shared policy');
+ check(require('../assets/js/readmarker-remaining-time.js').calculate(600,ratio).completed===state.isFinished,'remaining completion uses shared policy');
 }
 for(const initial of [0,0.4,0.8,1]) {
  const context=environment();context.win.scrollY=300+1200*initial;
@@ -479,7 +479,7 @@ for(const initial of [0,0.4,0.8,1]) {
  check(context.win.events.get('scroll').size===1 && context.win.pending()===0,'completion adds no scroll or scheduler');
  source.destroy();check(source.state===null && context.win.count()===0,'completion history discarded on destroy');
 }
-const completionSource=require('node:fs').readFileSync(require.resolve('../assets/js/readflow-remaining-time.js'),'utf8').split('const normalizeProgress')[1].split('Strict numeric inputs')[0];
+const completionSource=require('node:fs').readFileSync(require.resolve('../assets/js/readmarker-remaining-time.js'),'utf8').split('const normalizeProgress')[1].split('Strict numeric inputs')[0];
 check(!/Date\.|setInterval|setTimeout|requestAnimationFrame|addEventListener|getBoundingClientRect|MutationObserver/.test(completionSource),'completion pure comparisons without clocks or side effects');
 
 // Manual shortcode consumers share the real engine and one derived layer.
@@ -490,29 +490,29 @@ check(!/Date\.|setInterval|setTimeout|requestAnimationFrame|addEventListener|get
  const manager = new DisplayManager(root, context.win);
  const elements = ['progress', 'progress', 'progress', 'remaining', 'remaining'].map(kind => {
   const nodes = {};
-  for (const name of ['readflow-progress-value', 'readflow-progress-fill', 'readflow-duration-value', 'readflow-duration-prefix', 'readflow-duration-check']) nodes['.' + name] = { textContent: '', hidden: true, style: {} };
-  return { nodes, hidden: true, attributes: {}, getAttribute(name) { return name === 'data-readflow-inline' ? kind : name === 'data-readflow-format' ? 'natural' : null; }, querySelector(name) { return nodes[name]; }, setAttribute(name, value) { this.attributes[name] = value; } };
+  for (const name of ['readmarker-progress-value', 'readmarker-progress-fill', 'readmarker-duration-value', 'readmarker-duration-prefix', 'readmarker-duration-check']) nodes['.' + name] = { textContent: '', hidden: true, style: {} };
+  return { nodes, hidden: true, attributes: {}, getAttribute(name) { return name === 'data-readmarker-inline' ? kind : name === 'data-readmarker-format' ? 'natural' : null; }, querySelector(name) { return nodes[name]; }, setAttribute(name, value) { this.attributes[name] = value; } };
  });
  manager.mountInline(source, elements); const layer = manager.remaining;
  manager.mountInline(source, elements);
  check(manager.consumers.length === 5 && manager.remaining === layer, 'Inline initialization idempotent, one derived layer');
  check(source.listeners.size === 6, 'Three progress consumers, two visibility consumers and one remaining upstream');
  check(context.win.events.get('scroll').size === 1, 'Inline consumers add no scroll listeners');
- check(elements[0].nodes['.readflow-progress-value'].textContent === '60%', 'Immediate restored 60%');
- check(elements[3].nodes['.readflow-duration-value'].textContent === '4 min remaining', 'Immediate derived duration');
+ check(elements[0].nodes['.readmarker-progress-value'].textContent === '60%', 'Immediate restored 60%');
+ check(elements[3].nodes['.readmarker-duration-value'].textContent === '4 min remaining', 'Immediate derived duration');
  for (const percentage of [0, 50, 75, 100, 80]) {
   context.win.scrollY = 300 + 1200 * percentage / 100;
   const reads = context.article.reads;
   context.win.dispatchEvent({ type: 'scroll' }); context.win.flush();
   check(context.article.reads === reads + 1, 'One geometry read with five consumers');
   for (const element of elements.slice(0, 3)) {
-   check(element.nodes['.readflow-progress-value'].textContent === percentage + '%', 'Inline percentage update');
+   check(element.nodes['.readmarker-progress-value'].textContent === percentage + '%', 'Inline percentage update');
    check(element.attributes['aria-valuenow'] === String(percentage), 'Inline accessible value');
-   check(element.nodes['.readflow-progress-fill'].style.transform === 'scaleX(' + percentage / 100 + ')', 'Inline transform');
+   check(element.nodes['.readmarker-progress-fill'].style.transform === 'scaleX(' + percentage / 100 + ')', 'Inline transform');
   }
   for (const element of elements.slice(3)) {
-   check(element.nodes['.readflow-duration-check'].hidden === (percentage !== 100), 'Inline completion check');
-   check(percentage === 100 ? element.nodes['.readflow-duration-value'].textContent === 'Finished' : element.nodes['.readflow-duration-value'].textContent.includes('remaining'), 'Completion reverses on backward scroll');
+   check(element.nodes['.readmarker-duration-check'].hidden === (percentage !== 100), 'Inline completion check');
+   check(percentage === 100 ? element.nodes['.readmarker-duration-value'].textContent === 'Finished' : element.nodes['.readmarker-duration-value'].textContent.includes('remaining'), 'Completion reverses on backward scroll');
   }
  }
  const consumers = manager.consumers.slice(); manager.destroy(); manager.destroy();
@@ -522,7 +522,7 @@ check(!/Date\.|setInterval|setTimeout|requestAnimationFrame|addEventListener|get
 }
 
 {
- const c=environment();const event={type:'readflow:content-presentation-changed',detail:{reason:'unknown'}};
+ const c=environment();const event={type:'readmarker:content-presentation-changed',detail:{reason:'unknown'}};
  c.win.document.dispatchEvent(event);check(c.win.pending()===0,'Signal before initialization safe');
  const source=new Engine(c.article,c.win);source.init();source.init();c.win.flush();
  check(c.win.document.events.get(event.type).size===1,'One presentation listener despite repeated init');
@@ -538,12 +538,12 @@ check(!/Date\.|setInterval|setTimeout|requestAnimationFrame|addEventListener|get
 {
  const c=environment();c.win.scrollY=900;
  const automatic=displayRoot('percentage').elements.percentage;
- automatic.getAttribute=name=>name==='data-readflow-inline'?'progress':null;
- const root={getAttribute:name=>({'data-readflow-mode':'inline_progress','data-readflow-display-disabled':'true','data-readflow-total-seconds':'600'})[name]||null,querySelector:()=>null,appendChild(){throw Error('Inline consumer must stay in placement target');}};
+ automatic.getAttribute=name=>name==='data-readmarker-inline'?'progress':null;
+ const root={getAttribute:name=>({'data-readmarker-mode':'inline_progress','data-readmarker-display-disabled':'true','data-readmarker-total-seconds':'600'})[name]||null,querySelector:()=>null,appendChild(){throw Error('Inline consumer must stay in placement target');}};
  const transport={content:{querySelector:()=>automatic}};
  c.article.querySelectorAll=()=>[];
- c.win.document.querySelectorAll=query=>query==='[data-readflow-progress]'?[root]:[c.article];
- c.win.document.querySelector=query=>query==='template[data-readflow-placement]'?transport:null;
+ c.win.document.querySelectorAll=query=>query==='[data-readmarker-progress]'?[root]:[c.article];
+ c.win.document.querySelector=query=>query==='template[data-readmarker-placement]'?transport:null;
  const session=boot(c.win);c.win.flush();
  check(session&&session.manager.consumers.length===1,'Automatic selector transport uses existing inline consumer');
  check(automatic.value.textContent==='50%','Initial midpoint delivered while transport is inert');
@@ -554,7 +554,7 @@ check(!/Date\.|setInterval|setTimeout|requestAnimationFrame|addEventListener|get
   check(automatic.attributes['aria-valuenow']===String(Math.floor(ratio*100)),'Automatic inline accessible value');
   check(automatic.fill.style.transform==='scaleX('+ratio+')','Automatic inline fill');
  }
- const reads=c.article.reads;c.article.height=2400;c.win.document.dispatchEvent({type:'readflow:content-presentation-changed'});
+ const reads=c.article.reads;c.article.height=2400;c.win.document.dispatchEvent({type:'readmarker:content-presentation-changed'});
  check(c.win.pending()===1,'Presentation changes share scheduler');c.win.flush();check(c.article.reads===reads+1&&automatic.value.textContent===Math.floor(session.engine.state.percentage)+'%','Refreshed geometry reaches inline consumer');
  const count=session.manager.consumers.length;session.manager.mountInline(session.engine,[automatic]);check(session.manager.consumers.length===count,'Mounted selector node never double subscribes');
  session.destroy();check(c.win.count()===0&&automatic.hidden,'Inline lifecycle cleanup');
@@ -568,7 +568,33 @@ check(!/Date\.|setInterval|setTimeout|requestAnimationFrame|addEventListener|get
  off();f.win.scrollY=900;e.refresh();f.win.flush();
  check(errors===1 && delivered===2,'Other consumers continue after failed initial subscriber');e.destroy();
  const isolated={document:{readyState:'complete'}};
- require('node:vm').runInNewContext(require('node:fs').readFileSync('assets/js/readflow-progress.js','utf8'),{window:isolated});
- check(!isolated.ReadFlowProgress,'Missing duration dependency gracefully skips progress bootstrap');
+ require('node:vm').runInNewContext(require('node:fs').readFileSync('assets/js/readmarker-progress.js','utf8'),{window:isolated});
+ check(!isolated.ReadMarkerProgress,'Missing duration dependency gracefully skips progress bootstrap');
+}
+{
+ const c=environment();const engine=new Engine(c.article,c.win);const canonical=[],legacy=[];
+ c.article.addEventListener('readmarker:progress',event=>canonical.push(event.detail));
+ c.article.addEventListener('readflow:progress',event=>legacy.push(event.detail));
+ engine.init();c.win.flush();
+ check(canonical.length===1&&legacy.length===1&&canonical[0]===legacy[0],'Both event names expose the same immutable progress snapshot');
+ c.win.document.dispatchEvent({type:'readflow:content-presentation-changed'});
+ c.win.document.dispatchEvent({type:'readmarker:content-presentation-changed'});
+ check(c.win.pending()===1,'Legacy and canonical presentation signals coalesce into one frame');
+ engine.destroy();
+ check(c.win.document.events.get('readflow:content-presentation-changed').size===0&&c.win.pending()===0,'Legacy listener and scheduled frame cleaned up');
+}
+{
+ const callbacks=[],windowCallbacks=[];const window={addEventListener(type,fn){windowCallbacks.push({type,fn});},document:{readyState:'loading',addEventListener(type,fn){callbacks.push({type,fn});}}};
+ const context=require('node:vm').createContext({window});
+ for(const [file,suffix] of [['remaining-time','RemainingTime'],['position-memory','PositionMemory'],['progress','Progress'],['reader-controls','ReaderControls']]){
+  const script=require('node:fs').readFileSync(`assets/js/readmarker-${file}.js`,'utf8');
+  require('node:vm').runInContext(script,context);
+  const api=window['ReadMarker'+suffix];
+  check(api&&window['ReadFlow'+suffix]===api,'Legacy global shares canonical API: '+suffix);
+  require('node:vm').runInContext(script,context);
+  check(window['ReadMarker'+suffix]===api&&window['ReadFlow'+suffix]===api,'Reevaluation retains the same runtime: '+suffix);
+ }
+ check(callbacks.length===2,'Only one progress and one Reader Controls boot callback');
+ check(windowCallbacks.length===1&&windowCallbacks[0].type==='pageshow','Legacy globals add no duplicate page lifecycle handler');
 }
 console.log(`PASS: ${checks} JavaScript assertions including shared completion state.`);

@@ -1,11 +1,14 @@
 'use strict';
 const assert=require('node:assert/strict');
-const api=require('../assets/js/readflow-position-memory.js');
-const {calculateCompletionState}=require('../assets/js/readflow-progress.js');
+const api=require('../assets/js/readmarker-position-memory.js');
+const {calculateCompletionState}=require('../assets/js/readmarker-progress.js');
 let checks=0;const check=(ok,label)=>{assert.ok(ok,label);checks++;};
 let now=1800000000000;
 function storage(){return {map:new Map(),writes:0,removes:0,getItem(k){return this.map.get(k)??null;},setItem(k,v){this.writes++;this.map.set(k,v);},removeItem(k){this.removes++;this.map.delete(k);}};}
 const db=storage(),store=new api.Store(db,1,()=>now);
+check(store.key(101)==='readflow_position_v1_1_101','Rename preserves existing browser position keys');
+db.setItem('readflow_position_v1_1_101',JSON.stringify({version:1,articleId:101,progress:0.42,updatedAt:now}));
+check(store.read(101).progress===0.42,'Previously saved position remains readable');
 for(const ratio of [0.1,0.25,0.5,0.75,0.99]){check(store.save(101,ratio),'save ratio');check(store.read(101).progress===ratio,'read precise normalized ratio');}
 for(const [id,ratio] of [[101,0.3],[102,0.6],[103,0.8]])store.save(id,ratio);
 for(const [id,ratio] of [[101,0.3],[102,0.6],[103,0.8]])check(store.read(id).progress===ratio,'independent article keys');
@@ -34,8 +37,8 @@ class Node {
 }
 function fixture(saved=null,reduced=false){
  const db=storage();const local=new api.Store(db,1,()=>now);if(saved!==null)local.save(101,saved);
- const article=new Node();article.attrs['data-readflow-article']='101';article.isConnected=true;article.reads=0;article.getBoundingClientRect=()=>{article.reads++;return {top:300,height:1800};};
- const prompt=new Node(),text=new Node(),proceed=new Node(),dismiss=new Node(),root=new Node();root.appendChild(prompt);prompt.attrs['data-readflow-site']='1';prompt.nodes={'[data-readflow-position-text]':text,'[data-readflow-continue]':proceed,'[data-readflow-dismiss]':dismiss};
+ const article=new Node();article.attrs['data-readmarker-article']='101';article.isConnected=true;article.reads=0;article.getBoundingClientRect=()=>{article.reads++;return {top:300,height:1800};};
+ const prompt=new Node(),text=new Node(),proceed=new Node(),dismiss=new Node(),root=new Node();root.appendChild(prompt);prompt.attrs['data-readmarker-site']='1';prompt.nodes={'[data-readmarker-position-text]':text,'[data-readmarker-continue]':proceed,'[data-readmarker-dismiss]':dismiss};
  const body=new Node();body.scrollHeight=3000;
  const win={localStorage:db,scrollY:0,innerHeight:600,document:{body,documentElement:{scrollHeight:3000},activeElement:null},matchMedia:()=>({matches:reduced}),scrolls:[],scrollTo(o){this.scrolls.push(o);}};
  const engine={listeners:new Set(),state:null,refreshes:0,refresh(){this.refreshes++;},subscribe(fn){this.listeners.add(fn);if(this.state)fn(this.state);return ()=>this.listeners.delete(fn);},publish(ratio){this.state=Object.freeze({ratio,completion:calculateCompletionState(ratio)});this.listeners.forEach(fn=>fn(this.state));}};
@@ -73,11 +76,11 @@ for(const type of ['expired','malformed','unavailable','missingId']){
  const f=fixture();f.controller.init();f.engine.publish(0.4);now+=5000;f.engine.publish(0.41);
  check(f.local.read(101).progress===0.41,'exact one-point change survives floating point subtraction');f.controller.destroy();
 }
-const source=require('node:fs').readFileSync(require.resolve('../assets/js/readflow-position-memory.js'),'utf8');check(!/setInterval|setTimeout|requestAnimationFrame|MutationObserver|fetch\(|XMLHttpRequest/.test(source),'no timers polling or remote requests');
+const source=require('node:fs').readFileSync(require.resolve('../assets/js/readmarker-position-memory.js'),'utf8');check(!/setInterval|setTimeout|requestAnimationFrame|MutationObserver|fetch\(|XMLHttpRequest/.test(source),'no timers polling or remote requests');
 check(!/addEventListener\(['"]scroll/.test(source),'no scroll listeners');
 
 // Real progress boot owns memory and pagehide; memory-only mode creates no display.
-const {boot,calculate}=require('../assets/js/readflow-progress.js');
+const {boot,calculate}=require('../assets/js/readmarker-progress.js');
 const originalClock=Date.now;
 try {
 Date.now=()=>now;
@@ -87,9 +90,9 @@ for(const enabled of [false,true]){
  f.win.requestAnimationFrame=fn=>{frames.set(++frameId,fn);return frameId;};f.win.cancelAnimationFrame=id=>frames.delete(id);
  f.win.CustomEvent=class{constructor(type,options){this.type=type;Object.assign(this,options);}};
  f.article.dispatchEvent=()=>{};f.win.document.getElementById=()=>null;
- f.root.getAttribute=name=>name==='data-readflow-display-disabled'?'true':null;
+ f.root.getAttribute=name=>name==='data-readmarker-display-disabled'?'true':null;
  f.root.querySelector=()=>enabled?f.prompt:null;
- f.win.document.querySelectorAll=selector=>selector.includes('article')?[f.article]:[f.root];f.win.ReadFlowPositionMemory=api;
+ f.win.document.querySelectorAll=selector=>selector.includes('article')?[f.article]:[f.root];f.win.ReadMarkerPositionMemory=api;
  let storageReads=0;Object.defineProperty(f.win,'localStorage',{get(){storageReads++;return f.db;}});
  const active=boot(f.win);check(!!active && boot(f.win)===active,'boot remains idempotent');
  for(const [id,fn] of [...frames]){frames.delete(id);fn();}

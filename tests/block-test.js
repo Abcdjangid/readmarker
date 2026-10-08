@@ -4,12 +4,15 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 let checks = 0;
 function check(value, message) { assert.ok(value, message); checks++; }
-let registered;
-const wp = { blocks: { registerBlockType(name, settings) { registered = { name, settings }; } }, element: { Fragment: 'Fragment', createElement(type, props, ...children) { return { type, props: props || {}, children: children.flat() }; } }, i18n: { __(text) { return text; } }, blockEditor: { InspectorControls: 'InspectorControls', useBlockProps(props) { return props; } }, components: { SelectControl: 'SelectControl', ToggleControl: 'ToggleControl', PanelBody: 'PanelBody' } };
-vm.runInNewContext(fs.readFileSync('blocks/readflow/index.js', 'utf8'), { window: { wp } });
-const metadata = JSON.parse(fs.readFileSync('blocks/readflow/block.json'));
+let registered; const registrations = new Map();
+const wp = { blocks: { registerBlockType(name, settings) { registered = { name, settings }; registrations.set(name, settings); } }, element: { Fragment: 'Fragment', createElement(type, props, ...children) { return { type, props: props || {}, children: children.flat() }; } }, i18n: { __(text) { return text; } }, blockEditor: { InspectorControls: 'InspectorControls', useBlockProps(props) { return props; } }, components: { SelectControl: 'SelectControl', ToggleControl: 'ToggleControl', PanelBody: 'PanelBody' } };
+vm.runInNewContext(fs.readFileSync('blocks/readmarker/index.js', 'utf8'), { window: { wp } });
+const metadata = JSON.parse(fs.readFileSync('blocks/readmarker/block.json'));
 check(registered.name === metadata.name, 'Native block registration');
 const settings = registered.settings;
+const legacy = registrations.get('readflow/readflow');
+check(legacy && legacy.edit === settings.edit && legacy.save === settings.save, 'Legacy block uses the same editor and serializer');
+check(legacy.attributes === settings.attributes && legacy.supports.inserter === false, 'Legacy saved block keeps schema without duplicate inserter entry');
 check(settings.apiVersion === 3 && metadata.apiVersion === 3, 'Editor and server both declare iframe-compatible API v3');
 check(JSON.stringify(settings.attributes) === JSON.stringify(metadata.attributes), 'Editor and server schemas identical');
 check(settings.save() === null, 'Dynamic block saves no calculated HTML');
@@ -33,5 +36,5 @@ for (const type of metadata.attributes.type.enum) {
  check(JSON.stringify(settings.edit({ attributes, setAttributes() {} })) === JSON.stringify(tree), 'Multiple instances have no shared mutable editor state');
 }
 check(walk(settings.edit({ attributes: { type: '<script>' }, setAttributes() {} })).find(node => node.props.label === 'Display Type').props.value === 'reading_time', 'Invalid editor type safe');
-check(!/setInterval|setTimeout|requestAnimationFrame|addEventListener|ReadFlowProgress/.test(fs.readFileSync('blocks/readflow/index.js', 'utf8')), 'Editor adds no frontend runtime or timers');
+check(!/setInterval|setTimeout|requestAnimationFrame|addEventListener|ReadMarkerProgress/.test(fs.readFileSync('blocks/readmarker/index.js', 'utf8')), 'Editor adds no frontend runtime or timers');
 console.log(`PASS: ${checks} block editor assertions.`);

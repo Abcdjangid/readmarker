@@ -1,0 +1,35 @@
+/* Reference-page presentation only. Code scrolls independently of the Copy button. */
+.readmarker-shortcodes .readmarker-shortcodes-header { margin: 8px 0 20px; }
+.readmarker-shortcodes .readmarker-shortcodes-header p { max-width: 76ch; margin: 10px 0; font-size: 14px; line-height: 1.6; }
+.readmarker-shortcodes .readmarker-shortcodes-help { max-width: 90ch; margin: 0 0 24px; color: #50575e; line-height: 1.6; }
+.readmarker-shortcodes .readmarker-shortcodes-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+.readmarker-shortcodes .readmarker-shortcodes-card { min-width: 0; }
+.readmarker-shortcodes .readmarker-shortcode-variants { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+.readmarker-shortcodes .readmarker-shortcode-entry { box-sizing: border-box; min-width: 0; padding: 16px; background: #fff; border: 1px solid #dcdcde; border-radius: 8px; }
+.readmarker-shortcodes .readmarker-shortcodes-card h2 { margin: 0 0 10px; font-size: 18px; line-height: 1.4; }
+.readmarker-shortcodes .readmarker-shortcodes-card > p { margin: 0 0 16px; color: #50575e; line-height: 1.6; }
+.readmarker-shortcodes .readmarker-shortcode-example { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; min-width: 0; }
+.readmarker-shortcodes .readmarker-shortcode-code { box-sizing: border-box; min-width: 0; max-width: 100%; overflow-x: auto; padding: 12px 14px; border: 1px solid #dcdcde; border-radius: 4px; background: #f6f7f7; text-align: left; direction: ltr; }
+.readmarker-shortcodes .readmarker-shortcode-code code { display: block; width: max-content; margin: 0; padding: 0; background: transparent; color: #1d2327; font-family: Consolas, Monaco, "Liberation Mono", monospace; font-size: 13px; line-height: 1.6; white-space: pre; overflow-wrap: normal; word-break: normal; user-select: all; }
+.readmarker-shortcodes button[hidden] { display: none; }
+.readmarker-shortcodes .readmarker-shortcode-preview { margin-block: 8px 20px; min-inline-size: 0; }
+.readmarker-shortcodes .readmarker-shortcode-preview:last-child { margin-block-end: 0; }
+.readmarker-shortcodes .readmarker-shortcode-preview-label { display: block; margin-block-end: 5px; color: #50575e; font-size: 12px; font-weight: 600; }
+.readmarker-shortcodes .readmarker-shortcode-preview-output { padding: 12px 14px; border: 1px solid #dcdcde; border-radius: 4px; background: #f8fafc; color: #334155; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.readmarker-shortcodes .readmarker-shortcode-preview-progress { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.readmarker-shortcodes .readmarker-shortcode-preview-track { display: block; inline-size: 8em; max-inline-size: 100%; block-size: 4px; border-radius: 2px; background: #e2e8f0; }
+.readmarker-shortcodes .readmarker-shortcode-preview-track > span { display: block; inline-size: 42%; block-size: 100%; background: #2563eb; border-radius: inherit; }
+@media (forced-colors: active) {
+ .readmarker-shortcodes .readmarker-shortcode-preview-output { color: CanvasText; background: Canvas; border-color: CanvasText; }
+ .readmarker-shortcodes .readmarker-shortcode-preview-track { background: Canvas; outline: 1px solid CanvasText; }
+ .readmarker-shortcodes .readmarker-shortcode-preview-track > span { background: Highlight; forced-color-adjust: none; }
+}
+.readmarker-shortcodes button { justify-self: end; max-width: 140px; white-space: normal; height: auto; overflow-wrap: anywhere; }
+.readmarker-shortcodes button:focus-visible,
+.readmarker-shortcodes a:focus-visible,
+.readmarker-shortcodes .readmarker-shortcode-code:focus-visible { outline: 2px solid #2271b1; outline-offset: 3px; }
+@media (max-width: 782px) {
+ .readmarker-shortcodes .readmarker-shortcode-variants { grid-template-columns: minmax(0, 1fr); }
+ .readmarker-shortcodes .readmarker-shortcode-example { gap: 8px; }
+ .readmarker-shortcodes button { max-width: 100px; }
+}

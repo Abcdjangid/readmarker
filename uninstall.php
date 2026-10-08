@@ -1,8 +1,8 @@
 <?php
 /**
- * Uninstall intentionally retains global ReadFlow settings and per-post overrides.
+ * Uninstall intentionally retains global ReadMarker settings and per-post overrides.
  *
- * @package ReadFlow
+ * @package ReadMarker
  */
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {

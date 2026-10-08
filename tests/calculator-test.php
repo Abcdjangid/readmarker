@@ -9,7 +9,7 @@
  * double only returns "missing post"; existing posts are in-memory fixtures.
  * This does not claim to test live activation or translated locales.
  *
- * @package ReadFlow
+ * @package ReadMarker
  */
 
 if ( 'cli' !== PHP_SAPI ) {
@@ -44,7 +44,7 @@ function __( $text, $domain = 'default' ) {
 }
 
 function plugins_url( $path = '', $plugin = '' ) {
-	return 'https://example.test/wp-content/plugins/readflow/' . ltrim( $path, '/' );
+	return 'https://example.test/wp-content/plugins/readmarker/' . ltrim( $path, '/' );
 }
 
 $wpdb = new class() {
@@ -62,7 +62,7 @@ $wpdb = new class() {
 wp_cache_init();
 
 $checks = 0;
-function readflow_check( $condition, $label ) {
+function readmarker_check( $condition, $label ) {
 	global $checks;
 	if ( ! $condition ) {
 		throw new RuntimeException( 'FAIL: ' . $label );
@@ -71,21 +71,22 @@ function readflow_check( $condition, $label ) {
 }
 
 ob_start();
-require dirname( __DIR__ ) . '/readflow.php';
-readflow_check( ! class_exists( 'ReadFlow_Calculator', false ), 'Deferred service loading' );
+require dirname( __DIR__ ) . '/readmarker.php';
+readmarker_check( ! class_exists( 'ReadMarker_Calculator', false ), 'Deferred service loading' );
 do_action( 'plugins_loaded' );
-ReadFlow_Plugin::init();
-readflow_check( class_exists( 'ReadFlow_Calculator', false ), 'Calculator loaded by bootstrap' );
-readflow_check( class_exists( 'ReadFlow_Time_Formatter', false ), 'Formatter loaded by bootstrap' );
-readflow_check( 1 === did_action( 'readflow_loaded' ), 'Initialization occurs once' );
-readflow_check( '' === ob_get_clean(), 'Silent bootstrap' );
-$header = get_plugin_data( READFLOW_PLUGIN_FILE, false, false );
-readflow_check( 'ReadFlow' === $header['Name'] && '0.1.0' === $header['Version'], 'WordPress recognizes plugin header' );
+ReadMarker_Plugin::init();
+readmarker_check( class_exists( 'ReadMarker_Calculator', false ), 'Calculator loaded by bootstrap' );
+readmarker_check( class_exists( 'ReadMarker_Time_Formatter', false ), 'Formatter loaded by bootstrap' );
+readmarker_check( 1 === did_action( 'readmarker_loaded' ), 'Initialization occurs once' );
+readmarker_check( 1 === did_action( 'readflow_loaded' ), 'Legacy initialization hook still fires once' );
+readmarker_check( '' === ob_get_clean(), 'Silent bootstrap' );
+$header = get_plugin_data( READMARKER_PLUGIN_FILE, false, false );
+readmarker_check( 'ReadMarker' === $header['Name'] && '0.1.0' === $header['Version'], 'WordPress recognizes plugin header' );
 
 add_shortcode( 'caption', static function () { throw new RuntimeException( 'Shortcodes must not execute' ); } );
 add_shortcode( 'gallery', static function () { throw new RuntimeException( 'Shortcodes must not execute' ); } );
 add_filter( 'the_content', static function () { throw new RuntimeException( 'Content filters must not execute' ); } );
-$calculator = new ReadFlow_Calculator();
+$calculator = new ReadMarker_Calculator();
 
 // Each fixture asserts every result field, including optional badge labels.
 $cases = array(
@@ -130,53 +131,53 @@ $cases = array(
 foreach ( $cases as $case ) {
 	list( $label, $content, $words, $images, $seconds, $short ) = $case;
 	$result = $calculator->calculate_from_content( $content );
-	readflow_check( ! is_wp_error( $result ), $label . ': success' );
-	readflow_check( null === $result['post_id'], $label . ': no post context' );
-	readflow_check( $words === $result['word_count'], $label . ': words' );
-	readflow_check( $images === $result['image_count'], $label . ': images' );
-	readflow_check( 200.0 === $result['words_per_minute'], $label . ': WPM' );
-	readflow_check( abs( $seconds - $result['reading_seconds'] ) < 0.000001, $label . ': seconds' );
-	readflow_check( abs( $seconds / 60 - $result['reading_minutes'] ) < 0.000001, $label . ': minutes' );
-	readflow_check( $short === $result['formatted_short_time'], $label . ': short label' );
-	readflow_check( $short . ' read' === $result['formatted_time'], $label . ': full label' );
+	readmarker_check( ! is_wp_error( $result ), $label . ': success' );
+	readmarker_check( null === $result['post_id'], $label . ': no post context' );
+	readmarker_check( $words === $result['word_count'], $label . ': words' );
+	readmarker_check( $images === $result['image_count'], $label . ': images' );
+	readmarker_check( 200.0 === $result['words_per_minute'], $label . ': WPM' );
+	readmarker_check( abs( $seconds - $result['reading_seconds'] ) < 0.000001, $label . ': seconds' );
+	readmarker_check( abs( $seconds / 60 - $result['reading_minutes'] ) < 0.000001, $label . ': minutes' );
+	readmarker_check( $short === $result['formatted_short_time'], $label . ': short label' );
+	readmarker_check( $short . ' read' === $result['formatted_time'], $label . ': full label' );
 	echo 'PASS: ', $label, PHP_EOL;
 }
 
 foreach ( array( 0, -1, 'bad', '', null, true, false, array(), new stdClass(), INF, NAN, '1e999', 0.00001, 10001 ) as $invalid ) {
 	$result = $calculator->calculate_from_content( str_repeat( 'word ', 200 ), array( 'wpm' => $invalid ) );
-	readflow_check( 200.0 === $result['words_per_minute'] && 60.0 === $result['reading_seconds'] && '1 min read' === $result['formatted_time'], 'Invalid WPM defaults' );
+	readmarker_check( 200.0 === $result['words_per_minute'] && 60.0 === $result['reading_seconds'] && '1 min read' === $result['formatted_time'], 'Invalid WPM defaults' );
 }
 foreach ( array( 1, 10000, 250, 250.5, '300', '2e2' ) as $wpm ) {
 	$result = $calculator->calculate_from_content( str_repeat( 'word ', 1000 ), array( 'wpm' => $wpm ) );
-	readflow_check( (float) $wpm === $result['words_per_minute'], 'Custom WPM retained' );
-	readflow_check( abs( 60000 / $wpm - $result['reading_seconds'] ) < 0.000001, 'Custom WPM seconds' );
+	readmarker_check( (float) $wpm === $result['words_per_minute'], 'Custom WPM retained' );
+	readmarker_check( abs( 60000 / $wpm - $result['reading_seconds'] ) < 0.000001, 'Custom WPM seconds' );
 }
 $result = $calculator->calculate_from_content( 'word', array( 'wpm' => 10000 ) );
-readflow_check( 0.006 === $result['reading_seconds'] && '1 sec' === $result['formatted_short_time'], 'Fractional seconds preserved' );
-readflow_check( 200.0 === $calculator->calculate_from_content( 'word', new stdClass() )['words_per_minute'], 'Invalid options use default' );
+readmarker_check( 0.006 === $result['reading_seconds'] && '1 sec' === $result['formatted_short_time'], 'Fractional seconds preserved' );
+readmarker_check( 200.0 === $calculator->calculate_from_content( 'word', new stdClass() )['words_per_minute'], 'Invalid options use default' );
 
 foreach ( array( 0, -1, 'bad', '12.5', 12.5, null, true, array(), new stdClass(), '999999999999999999999999999', '1e2' ) as $id ) {
 	$result = $calculator->calculate_from_post( $id );
-	readflow_check( is_wp_error( $result ) && 'readflow_invalid_post_id' === $result->get_error_code(), 'Invalid post ID controlled error' );
+	readmarker_check( is_wp_error( $result ) && 'readmarker_invalid_post_id' === $result->get_error_code(), 'Invalid post ID controlled error' );
 }
-readflow_check( 0 === $wpdb->lookups, 'Invalid IDs/content calls never access database' );
+readmarker_check( 0 === $wpdb->lookups, 'Invalid IDs/content calls never access database' );
 $result = $calculator->calculate_from_post( 999 );
-readflow_check( is_wp_error( $result ) && 'readflow_post_not_found' === $result->get_error_code(), 'Missing post controlled error' );
-readflow_check( 1 === $wpdb->lookups, 'Missing post uses one lookup' );
+readmarker_check( is_wp_error( $result ) && 'readmarker_post_not_found' === $result->get_error_code(), 'Missing post controlled error' );
+readmarker_check( 1 === $wpdb->lookups, 'Missing post uses one lookup' );
 wp_cache_set( 123, (object) array( 'ID' => 123, 'post_content' => '<p>' . str_repeat( 'word ', 200 ) . '</p><img src="a.jpg">', 'filter' => 'raw' ), 'posts' );
 $result = $calculator->calculate_from_post( '123', array( 'wpm' => 100 ) );
-readflow_check( 123 === $result['post_id'] && 200 === $result['word_count'] && 1 === $result['image_count'], 'Real WordPress post API fixture' );
-readflow_check( 100.0 === $result['words_per_minute'] && 120.0 === $result['reading_seconds'] && 2.0 === $result['reading_minutes'], 'Post options and duration' );
-readflow_check( '2 min read' === $result['formatted_time'] && '2 min' === $result['formatted_short_time'], 'Post labels' );
-readflow_check( 1 === $wpdb->lookups, 'Cached fixture needs no database lookup' );
+readmarker_check( 123 === $result['post_id'] && 200 === $result['word_count'] && 1 === $result['image_count'], 'Real WordPress post API fixture' );
+readmarker_check( 100.0 === $result['words_per_minute'] && 120.0 === $result['reading_seconds'] && 2.0 === $result['reading_minutes'], 'Post options and duration' );
+readmarker_check( '2 min read' === $result['formatted_time'] && '2 min' === $result['formatted_short_time'], 'Post labels' );
+readmarker_check( 1 === $wpdb->lookups, 'Cached fixture needs no database lookup' );
 
 foreach ( array( null, array(), new stdClass(), 42, "\xC3\x28" ) as $content ) {
 	$result = $calculator->calculate_from_content( $content );
-	readflow_check( is_wp_error( $result ) && 'readflow_invalid_content' === $result->get_error_code(), 'Invalid content controlled error' );
+	readmarker_check( is_wp_error( $result ) && 'readmarker_invalid_content' === $result->get_error_code(), 'Invalid content controlled error' );
 }
 foreach ( array( array( 0, '0 sec' ), array( 45, '45 sec' ), array( 59.9, '1 min' ), array( 60, '1 min' ), array( 61, '2 min' ), array( 372, '7 min' ), array( 3599, '1 hr' ), array( 3600, '1 hr' ), array( 4320, '1 hr 12 min' ), array( INF, '0 sec' ), array( -1, '0 sec' ) ) as $case ) {
-	$formatted = ReadFlow_Time_Formatter::format( $case[0] );
-	readflow_check( $case[1] === $formatted['formatted_short_time'] && $case[1] . ' read' === $formatted['formatted_time'], 'Independent formatter boundaries' );
+	$formatted = ReadMarker_Time_Formatter::format( $case[0] );
+	readmarker_check( $case[1] === $formatted['formatted_short_time'] && $case[1] . ' read' === $formatted['formatted_time'], 'Independent formatter boundaries' );
 }
 
 // No parser failure should silently turn into a successful partial count.
@@ -184,6 +185,6 @@ $limit = ini_get( 'pcre.backtrack_limit' );
 ini_set( 'pcre.backtrack_limit', '1' );
 $result = $calculator->calculate_from_content( '<p title="one">Two words</p>' );
 ini_set( 'pcre.backtrack_limit', $limit );
-readflow_check( is_wp_error( $result ), 'Regex resource failure is controlled' );
+readmarker_check( is_wp_error( $result ), 'Regex resource failure is controlled' );
 
 echo 'PASS: ', $checks, ' assertions; no PHP warnings/notices; no live database or network access.', PHP_EOL;

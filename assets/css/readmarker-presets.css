@@ -1,0 +1,17 @@
+.readmarker-presets { margin: 24px 0; max-width: 1200px; }
+.readmarker-presets .readmarker-presets__grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,320px),1fr)); gap: 16px; }
+.readmarker-presets .readmarker-presets__card { background: #fff; color: #1d2327; border: 1px solid #c3c4c7; border-radius: 6px; padding: 18px; margin: 0; min-width: 0; }
+.readmarker-presets .readmarker-presets__card h3 { margin-top: 0; }
+.readmarker-presets .readmarker-presets__card li { margin: 6px 0; }
+.readmarker-presets button:focus-visible, .readmarker-presets input:focus-visible { outline: 2px solid #2271b1; outline-offset: 3px; }
+.readmarker-settings .readmarker-settings-nav ul { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 20px 0; }
+.readmarker-settings .readmarker-settings-nav a { display: inline-block; padding: 6px 0; }
+.readmarker-settings .readmarker-settings-nav a:focus-visible { outline: 2px solid #2271b1; outline-offset: 3px; }
+.readmarker-settings .readmarker-settings-section { margin: 28px 0; scroll-margin-top: 60px; }
+
+.readmarker-presets .readmarker-presets__card--active { border-color: #2271b1; background: #f6f9fc; }
+.readmarker-presets .readmarker-presets__active { display: inline-block; margin-inline-start: 8px; padding: 2px 8px; border-radius: 3px; background: #e5edf5; color: #1d4f7a; font-size: 12px; font-weight: 600; vertical-align: middle; }
+
+/* The native disclosure must not recenter as its table row grows. */
+.readmarker-settings .form-table .readmarker-selector-row > td { vertical-align: top; }
+.readmarker-settings [data-readmarker-selector-settings] > summary:focus-visible { outline: 2px solid #2271b1; outline-offset: 3px; }

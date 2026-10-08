@@ -1,5 +1,5 @@
 'use strict';
-const assert=require('node:assert/strict');const fs=require('node:fs');const api=require('../assets/js/readflow-reader-controls.js');let checks=0;
+const assert=require('node:assert/strict');const fs=require('node:fs');const api=require('../assets/js/readmarker-reader-controls.js');let checks=0;
 function check(v,m){assert.ok(v,m);checks++;}
 for(const value of [null,{},'bad',{version:2,textSize:100,readingWidth:100},{version:1,textSize:150,readingWidth:100},{version:1,textSize:100,readingWidth:Infinity},{version:1,textSize:'100',readingWidth:100}])check(api.normalize(value).textSize===100&&api.normalize(value).readingWidth===100,'Invalid loaded preferences default');
 for(const textSize of [80,90,100,110,120,130,140])for(const readingWidth of [80,90,100,110,120])check(api.normalize({version:1,textSize,readingWidth}).textSize===textSize,'Valid preference steps');
@@ -9,7 +9,7 @@ for(const value of ['{','null','{"version":9}'])check(api.read({localStorage:{ge
 const blocked={get localStorage(){throw Error('SecurityError');}};check(api.read(blocked).textSize===100,'Storage unavailable');api.save(blocked,{version:1,textSize:120,readingWidth:100});check(true,'Save failure safe');
 function element(attrs={}){const values={};return {attrs,hidden:true,disabled:false,textContent:'',style:{getPropertyValue:key=>values[key]||'',getPropertyPriority:()=>'',setProperty:(key,value)=>{values[key]=value;}},classList:{add(){},remove(){},toggle(){}},closest(){return null;},getAttribute:key=>attrs[key]??null,setAttribute:(key,value)=>{attrs[key]=value;},hasAttribute:key=>key in attrs,focus(){this.focused=true;}};}
 function fixture(storage){
- const article=element({'data-readflow-article':'456'});article.parentElement=element();article.contains=()=>false;article.nextSibling={after:true};article.parentNode={insertBefore(node,next){node.mountedBefore=next;node.mounts=(node.mounts||0)+1;}};const paragraph=element();const metadata=element();metadata.closest=()=>metadata;
+ const article=element({'data-readmarker-article':'456'});article.parentElement=element();article.contains=()=>false;article.nextSibling={after:true};article.parentNode={insertBefore(node,next){node.mountedBefore=next;node.mounts=(node.mounts||0)+1;}};const paragraph=element();const metadata=element();metadata.closest=()=>metadata;
  article.querySelectorAll=query=>query.startsWith('p,')?[paragraph]:[metadata];
  const summary=element();const trigger=element(),panel=element(),reset=element({'data-reader-reset':''});
  const displays={textSize:element(),readingWidth:element()};const buttons=[];
@@ -19,10 +19,10 @@ function fixture(storage){
  ui.querySelectorAll=query=>buttons.filter(button=>query.includes(button.attrs['data-reader-key']));
  let refresh=0,writes=0;const saved=[];
  const documentListeners=new Map();
- const signals=[];
- const win={CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},document:{dispatchEvent(event){signals.push(event);if(event.type==='readflow:content-presentation-changed')refresh++;for(const fn of documentListeners.get(event.type)||[])fn(event);},activeElement:null,addEventListener(name,fn){if(!documentListeners.has(name))documentListeners.set(name,new Set());documentListeners.get(name).add(fn);},removeEventListener(name,fn){documentListeners.get(name)?.delete(fn);},querySelector:()=>null,querySelectorAll:query=>query.startsWith('.readflow-article')?[article]:[ui]},getComputedStyle:node=>({fontSize:node===paragraph?'20px':'16px',width:node===article?'600px':'1000px'}),localStorage:storage||{getItem:()=>null,setItem:(key,value)=>{writes++;saved.push([key,value]);}},ReadFlowProgress:{refresh(){refresh++;}}};
+ const signals=[]; const legacySignals=[];
+ const win={CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},document:{dispatchEvent(event){(event.type==='readflow:content-presentation-changed'?legacySignals:signals).push(event);if(event.type==='readmarker:content-presentation-changed')refresh++;for(const fn of documentListeners.get(event.type)||[])fn(event);},activeElement:null,addEventListener(name,fn){if(!documentListeners.has(name))documentListeners.set(name,new Set());documentListeners.get(name).add(fn);},removeEventListener(name,fn){documentListeners.get(name)?.delete(fn);},querySelector:()=>null,querySelectorAll:query=>query.startsWith('.readmarker-article')?[article]:[ui]},getComputedStyle:node=>({fontSize:node===paragraph?'20px':'16px',width:node===article?'600px':'1000px'}),localStorage:storage||{getItem:()=>null,setItem:(key,value)=>{writes++;saved.push([key,value]);}},ReadMarkerProgress:{refresh(){refresh++;}}};
  const click=button=>listeners.click({target:{closest:()=>button}});
- return {signals,summary,documentListeners,win,article,paragraph,metadata,ui,trigger,panel,buttons,reset,displays,listeners,click,saved,refresh:()=>refresh,writes:()=>writes};
+ return {signals,legacySignals,summary,documentListeners,win,article,paragraph,metadata,ui,trigger,panel,buttons,reset,displays,listeners,click,saved,refresh:()=>refresh,writes:()=>writes};
 }
 {
  const f=fixture();const control=api.boot(f.win);check(control===api.boot(f.win)&&Object.keys(f.listeners).length===2,'Idempotent two UI-only handlers');
@@ -41,11 +41,11 @@ function fixture(storage){
  const f=fixture({getItem:()=>JSON.stringify({version:1,textSize:120,readingWidth:80}),setItem(){throw Error('quota');}});const c=api.boot(f.win);check(c.preferences.textSize===120&&f.paragraph.style.getPropertyValue('font-size')==='24px','Loaded preferences applied');f.click(f.reset);check(c.preferences.textSize===100,'Reset works without persistence');c.destroy();
 }
 for(const count of [0,2]){let reads=0;const win={document:{querySelectorAll:()=>Array(count).fill({})},get localStorage(){reads++;throw Error('blocked');}};check(api.boot(win)===null&&reads===0,'Missing/ambiguous target no storage or UI');}
-const source=fs.readFileSync('assets/js/readflow-reader-controls.js','utf8');check(!/setInterval|setTimeout|requestAnimationFrame|MutationObserver|['"]scroll['"]|['"]resize['"]|fetch\(/.test(source),'No observers/timers/network/scroll system');
+const source=fs.readFileSync('assets/js/readmarker-reader-controls.js','utf8');check(!/setInterval|setTimeout|requestAnimationFrame|MutationObserver|['"]scroll['"]|['"]resize['"]|fetch\(/.test(source),'No observers/timers/network/scroll system');
 
 for(const placement of ['above','below','reading_info'])for(const expanded of [false,true]){
  const f=fixture();f.ui.attrs['data-reader-placement']=placement;f.ui.attrs['data-reader-panel-state']=expanded?'expanded':'collapsed';
- const info=element({'data-readflow-reading-info':'456'});info.appendChild=node=>{node.metadataParent=info;node.mounts=(node.mounts||0)+1;};f.win.document.querySelector=()=>info;
+ const info=element({'data-readmarker-reading-info':'456'});info.appendChild=node=>{node.metadataParent=info;node.mounts=(node.mounts||0)+1;};f.win.document.querySelector=()=>info;
  const controller=api.boot(f.win);
  check(placement==='reading_info'?f.ui.metadataParent===info:f.ui.mountedBefore===(placement==='below'?f.article.nextSibling:f.article),'Requested placement');
  check(f.panel.hidden===!expanded&&f.trigger.attrs['aria-expanded']===String(expanded),'Initial state and aria match');
@@ -57,7 +57,7 @@ for(const placement of ['above','below','reading_info'])for(const expanded of [f
  const f=fixture();f.ui.attrs['data-reader-placement']='reading_info';api.boot(f.win);check(f.ui.mountedBefore===f.article,'Missing reading info falls back above');
  check(f.writes()===0,'Panel settings are never persisted on init');
 }
-const css=fs.readFileSync('assets/css/readflow-reader-controls.css','utf8');
+const css=fs.readFileSync('assets/css/readmarker-reader-controls.css','utf8');
 check(css.includes('(width < 782px)')&&css.includes('(min-width: 782px)'),'Exact 782px breakpoint');
 check(css.includes('[data-reader-visibility="desktop"] { display: none; }')&&css.includes('[data-reader-visibility="mobile"] { display: none; }'),'Responsive display removes UI from keyboard/accessibility tree');
 check(!/innerWidth|matchMedia|ResizeObserver/.test(source),'No viewport JavaScript');
@@ -118,11 +118,11 @@ for(const [textSize,readingWidth,expected] of [[100,100,''],[130,100,' \u00b7 Te
  const f=fixture();api.boot(f.win);check(f.signals.length===0,'Default initialization has no change signal');
  f.click(f.reset);check(f.signals.length===0,'Default reset has no signal');
  const button=(key,direction)=>f.buttons.find(b=>b.attrs['data-reader-key']===key&&b.attrs['data-reader-step']===String(direction));
- f.win.document.addEventListener('readflow:content-presentation-changed',event=>{
+ f.win.document.addEventListener('readmarker:content-presentation-changed',event=>{
   check(f.saved.length>0&&JSON.parse(f.saved.at(-1)[1]).textSize===Number(f.displays.textSize.textContent.replace('%','')),'Signal follows persistence and UI update');
   check(Object.keys(event.detail).join(',')==='reason'&&['reset','reader-controls'].includes(event.detail.reason),'Minimal safe payload');
  });
- f.click(button('textSize',1));check(f.signals.length===1&&f.signals[0].detail.reason==='reader-controls','Text signals');
+ f.click(button('textSize',1));check(f.legacySignals.length===1&&f.legacySignals[0].detail.reason===f.signals[0].detail.reason,'Legacy presentation event retains payload');check(f.signals.length===1&&f.signals[0].detail.reason==='reader-controls','Text signals');
  f.click(button('readingWidth',-1));check(f.signals.length===2,'Width signals');
  f.click(f.reset);check(f.signals.length===3&&f.signals[2].detail.reason==='reset'&&f.summary.textContent==='','Reset signals after presentation restored');
  f.click(f.reset);check(f.signals.length===3,'Unchanged reset no signal');

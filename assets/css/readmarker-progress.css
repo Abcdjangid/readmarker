@@ -1,0 +1,141 @@
+/* Contains floats/margins so the measurable wrapper includes its article. */
+.readmarker-article-content { display: flow-root; }
+.readmarker-progress {
+	position: fixed;
+	top: var(--readmarker-progress-offset, 0px);
+	left: 0;
+	right: 0;
+	height: var(--readmarker-progress-height, 3px);
+	/* Below WP's admin bar (99999) and typical modal layers; not an overlay. */
+	z-index: 1000;
+	pointer-events: none;
+	contain: layout paint;
+}
+.readmarker-progress[hidden] { display: none; }
+.readmarker-progress-fill {
+	width: 100%;
+	height: 100%;
+	background: var(--readmarker-progress-color, #2563eb);
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform var(--readmarker-progress-transition, 80ms linear);
+}
+.readmarker-progress-indicator {
+	--readmarker-progress-size: 56px;
+	--readmarker-progress-font-size: 13px;
+	position: fixed;
+	right: max(12px, env(safe-area-inset-right, 0px));
+	bottom: max(12px, env(safe-area-inset-bottom, 0px));
+	z-index: 1000;
+	pointer-events: none;
+	box-sizing: border-box;
+	display: grid;
+	place-items: center;
+	width: var(--readmarker-progress-size);
+	max-width: calc(100vw - 24px);
+	height: var(--readmarker-progress-size);
+	border-radius: 50%;
+	background: #fff;
+	color: #1e293b;
+	font: 600 var(--readmarker-progress-font-size)/1.2 system-ui, sans-serif;
+	font-variant-numeric: tabular-nums;
+}
+.readmarker-progress-indicator[hidden] { display: none; }
+.readmarker-progress-indicator--percentage {
+	height: auto;
+	min-height: 32px;
+	border: 2px solid var(--readmarker-progress-color, #2563eb);
+	border-radius: 8px;
+	padding: 6px 4px;
+}
+.readmarker-progress-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.readmarker-progress-track, .readmarker-progress-stroke { fill: none; stroke-width: 4; }
+.readmarker-progress-track { stroke: #e2e8f0; }
+.readmarker-progress-stroke { stroke: var(--readmarker-progress-color, #2563eb); transition: stroke-dashoffset var(--readmarker-progress-transition, 80ms linear); }
+.readmarker-progress-value { position: relative; }
+.readmarker-progress-indicator--remaining {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 0.25em;
+	width: max-content;
+	max-width: min(32rem, calc(100vw - 24px));
+	height: auto;
+	padding: 9px 12px;
+	border: 1px solid var(--readmarker-progress-color, #2563eb);
+	border-radius: 8px;
+	line-height: 1.5;
+	overflow-wrap: anywhere;
+}
+.readmarker-duration-prefix, .readmarker-duration-value { min-width: 0; }
+.readmarker-progress-indicator--remaining [hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+	.readmarker-progress-fill, .readmarker-progress-stroke { transition: none; }
+}
+@media (forced-colors: active) {
+	.readmarker-progress-fill { background: Highlight; forced-color-adjust: none; }
+	.readmarker-progress-indicator { background: Canvas; color: CanvasText; border-color: Highlight; }
+	.readmarker-progress-track { stroke: GrayText; }
+	.readmarker-progress-stroke { stroke: Highlight; }
+}
+/* Compact presentation consumer; shares fixed placement and safe-area spacing. */
+.readmarker-floating-widget {
+	display: grid;
+	place-items: stretch;
+	gap: 6px;
+	width: 180px;
+	padding: 12px;
+	border-color: #cbd5e1;
+	border-radius: 10px;
+	box-shadow: 0 2px 12px rgb(15 23 42 / 12%);
+	pointer-events: none;
+}
+.readmarker-floating-widget__percentage { font-size: 22px; line-height: 1.2; }
+.readmarker-floating-widget__remaining { min-width: 0; font-weight: 400; }
+.readmarker-floating-widget .readmarker-duration-check { margin-inline-end: 0.25em; }
+.readmarker-floating-widget__progress { height: 4px; overflow: hidden; border-radius: 2px; background: #e2e8f0; }
+.readmarker-floating-widget__progress-fill {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: var(--readmarker-progress-color, #2563eb);
+	transform: scaleX(0);
+	transform-origin: left center;
+	/* No animation: accurate during scrolling, including reduced-motion mode. */
+}
+@media (max-width: 480px) {
+	.readmarker-floating-widget { width: 160px; padding: 10px; }
+	.readmarker-floating-widget__percentage { font-size: 20px; }
+}
+@media (forced-colors: active) {
+	.readmarker-floating-widget { border-color: CanvasText; box-shadow: none; }
+	.readmarker-floating-widget__progress { background: Canvas; outline: 1px solid CanvasText; }
+	.readmarker-floating-widget__progress-fill { background: Highlight; forced-color-adjust: none; }
+}
+/* Interactive opt-in prompt sits above the passive indicators while a decision is pending. */
+.readmarker-position-prompt {
+ position: fixed; right: max(12px, env(safe-area-inset-right, 0px)); bottom: max(12px, env(safe-area-inset-bottom, 0px));
+ z-index: 1001; box-sizing: border-box; width: 280px; max-width: calc(100vw - 24px);
+ padding: 16px; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; color: #1e293b;
+ box-shadow: 0 2px 12px rgb(15 23 42 / 12%); font: 14px/1.5 system-ui, sans-serif; overflow-wrap: anywhere; pointer-events: auto;
+}
+.readmarker-position-prompt[hidden] { display: none; }
+.readmarker-position-prompt p { margin: 8px 0; }
+.readmarker-position-prompt button { font: inherit; padding: 8px 12px; color: #fff; background: #1e293b; border: 1px solid currentColor; border-radius: 4px; cursor: pointer; }
+.readmarker-position-prompt button:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+@media (forced-colors: active) {
+ .readmarker-position-prompt { background: Canvas; color: CanvasText; border-color: CanvasText; box-shadow: none; }
+ .readmarker-position-prompt button { background: ButtonFace; color: ButtonText; }
+ .readmarker-position-prompt button:focus-visible { outline-color: Highlight; }
+}
+/* Manual consumers stay in article flow; no fixed positioning or theme selectors. */
+.readmarker-inline-progress { display: inline-flex; align-items: center; gap: .5em; max-width: 100%; vertical-align: middle; }
+.readmarker-inline-track { display: inline-block; width: 8em; max-width: 40vw; height: 4px; overflow: hidden; background: #e2e8f0; border-radius: 2px; }
+.readmarker-inline-track .readmarker-progress-fill { display: block; }
+.readmarker-inline-remaining { display: inline; }
+.readmarker-inline-progress[hidden], .readmarker-inline-remaining[hidden] { display: none; }
+@media (forced-colors: active) {
+ .readmarker-inline-track { border: 1px solid CanvasText; }
+ .readmarker-inline-track .readmarker-progress-fill { background: Highlight; forced-color-adjust: none; }
+}

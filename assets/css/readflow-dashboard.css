@@ -1,9 +1,0 @@
-.readflow-dashboard { max-width: 1200px; }
-.readflow-dashboard .readflow-dashboard__eyebrow { font-weight: 600; margin-bottom: 4px; }
-.readflow-dashboard .readflow-dashboard__actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
-.readflow-dashboard .readflow-dashboard__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
-.readflow-dashboard .readflow-dashboard__card { background: #fff; color: #1d2327; border: 1px solid #c3c4c7; border-radius: 6px; padding: 20px; min-width: 0; }
-.readflow-dashboard .readflow-dashboard__card h2 { margin-top: 0; font-size: 18px; }
-.readflow-dashboard .readflow-dashboard__card dt { font-weight: 600; margin-top: 14px; }
-.readflow-dashboard .readflow-dashboard__card dd { margin: 4px 0 0; overflow-wrap: anywhere; }
-.readflow-dashboard a:focus-visible { outline: 2px solid #2271b1; outline-offset: 3px; }

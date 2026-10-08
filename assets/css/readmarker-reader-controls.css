@@ -1,0 +1,105 @@
+.readmarker-reader-controls {
+ position: relative;
+ margin-block: .75rem;
+ max-inline-size: 100%;
+ font: 14px/1.5 system-ui, sans-serif;
+ color: var(--readmarker-color, #334155);
+}
+.readmarker-reader-controls[hidden], .readmarker-reader-controls [hidden] { display: none; }
+.readmarker-reader-controls button {
+ box-sizing: border-box;
+ max-inline-size: 100%;
+ font: inherit;
+ font-weight: 500;
+ line-height: 1.5;
+ text-transform: none;
+ letter-spacing: normal;
+ color: inherit;
+ background: transparent;
+ border: 1px solid var(--readmarker-border, #cbd5e1);
+ border-radius: 6px;
+ padding: .5rem .75rem;
+ cursor: pointer;
+}
+.readmarker-reader-controls button:hover:not(:disabled) {
+ background: var(--readmarker-background, #f1f5f9);
+ border-color: currentColor;
+}
+.readmarker-reader-controls button:active:not(:disabled) {
+ background: var(--readmarker-border, #cbd5e1);
+}
+.readmarker-reader-controls button:disabled { opacity: .6; cursor: default; }
+.readmarker-reader-controls button:focus-visible { outline: 2px solid #2271b1; outline-offset: 3px; }
+.readmarker-reader-controls [data-reader-toggle] {
+ padding: .5rem 1rem;
+ border-radius: 8px;
+ background: var(--readmarker-background, #f1f5f9);
+ white-space: normal;
+ overflow-wrap: anywhere;
+ text-align: start;
+}
+.readmarker-reader-controls [data-reader-toggle][aria-expanded="true"] { border-color: currentColor; }
+.readmarker-reader-controls .readmarker-reader-controls-label { font-weight: 600; }
+.readmarker-reader-controls .readmarker-reader-controls-summary { font-size: .9em; font-weight: 400; }
+.readmarker-reader-controls [data-reader-panel] {
+ box-sizing: border-box;
+ inline-size: 26rem;
+ max-inline-size: 100%;
+ margin-block-start: .5rem;
+ padding: 1.25rem;
+ color: var(--readmarker-color, #334155);
+ background: var(--readmarker-background, #f1f5f9);
+ border: 1px solid var(--readmarker-border, #cbd5e1);
+ border-radius: var(--readmarker-radius, .65rem);
+ box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+}
+.readmarker-reader-controls [data-reader-panel] > div {
+ display: grid;
+ grid-template-columns: minmax(0, 1fr) 2.75rem 5ch 2.75rem;
+ align-items: center;
+ gap: .5rem;
+ margin-block-end: 1rem;
+}
+.readmarker-reader-controls [data-reader-panel] > div > span:first-child {
+ margin-inline-end: .5rem;
+ overflow-wrap: anywhere;
+}
+.readmarker-reader-controls [data-reader-step] {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ inline-size: 2.75rem;
+ min-block-size: 2.75rem;
+ padding: .25rem;
+ font-size: 1.125rem;
+}
+.readmarker-reader-controls [data-reader-value] {
+ text-align: center;
+ font-weight: 600;
+ font-variant-numeric: tabular-nums;
+ white-space: nowrap;
+}
+.readmarker-reader-controls [data-reader-reset] {
+ margin-block-start: .25rem;
+ white-space: normal;
+ overflow-wrap: anywhere;
+}
+.readmarker-reader-article { display: flow-root; }
+.readmarker-reader-article.readmarker-reader-width-adjusted { max-width: 100%; margin-inline: auto; }
+/* CSS-only visibility: preferences continue to apply when the controls are hidden. */
+@media (width < 782px) {
+ .readmarker-reader-controls[data-reader-visibility="desktop"] { display: none; }
+}
+@media (min-width: 782px) {
+ .readmarker-reader-controls[data-reader-visibility="mobile"] { display: none; }
+}
+@media (forced-colors: active) {
+ .readmarker-reader-controls { color: CanvasText; }
+ .readmarker-reader-controls [data-reader-panel] { color: CanvasText; background: Canvas; border-color: CanvasText; box-shadow: none; }
+ .readmarker-reader-controls button,
+ .readmarker-reader-controls [data-reader-toggle] { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
+ .readmarker-reader-controls button:hover:not(:disabled),
+ .readmarker-reader-controls button:active:not(:disabled) { color: HighlightText; background: Highlight; border-color: Highlight; }
+ .readmarker-reader-controls button:disabled { color: GrayText; border-color: GrayText; opacity: 1; }
+ .readmarker-reader-controls button:focus-visible { outline-color: Highlight; }
+}

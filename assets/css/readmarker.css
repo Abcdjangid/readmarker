@@ -1,0 +1,48 @@
+/* Shared metadata layout. Theme authors may override these variables. */
+.readmarker-display {
+	--readmarker-color: #334155;
+	--readmarker-background: #f1f5f9;
+	--readmarker-border: #cbd5e1;
+	--readmarker-radius: 0.65rem;
+	box-sizing: border-box;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.4em 0.6em;
+	max-width: 100%;
+	margin-block: 1.25rem;
+	color: inherit;
+	font-family: inherit;
+	font-size: 0.875em;
+	font-weight: 400;
+	line-height: 1.6;
+	overflow-wrap: anywhere;
+}
+.readmarker-field { display: inline-flex; align-items: center; gap: 0.4em; min-width: 0; }
+.readmarker-icon { flex: 0 0 auto; width: 1.1em; height: 1.1em; }
+.readmarker-display--badge {
+	width: fit-content;
+	padding: 0.35em 0.85em;
+	border: 1px solid var(--readmarker-border);
+	border-radius: 999px;
+	color: var(--readmarker-color);
+	background: var(--readmarker-background);
+}
+.readmarker-display--meta { font-size: 0.8125em; letter-spacing: 0.01em; }
+.readmarker-display--card {
+	width: fit-content;
+	align-items: flex-start;
+	flex-direction: column;
+	gap: 0.3em;
+	padding: 0.85em 1.1em;
+	border: 1px solid var(--readmarker-border);
+	border-radius: var(--readmarker-radius);
+	color: var(--readmarker-color);
+	background: var(--readmarker-background);
+}
+.readmarker-display--card .readmarker-separator { display: none; }
+.readmarker-display--card .readmarker-time { font-weight: 600; }
+@media (forced-colors: active) {
+	.readmarker-display { color: CanvasText; }
+	.readmarker-display--badge, .readmarker-display--card { background: Canvas; border-color: CanvasText; }
+}

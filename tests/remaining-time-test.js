@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('node:assert/strict');
-const { calculate, format, formatFinishTime, Layer } = require('../assets/js/readflow-remaining-time.js');
+const { calculate, format, formatFinishTime, Layer } = require('../assets/js/readmarker-remaining-time.js');
 let checks = 0;
 function check(value, label) { assert.ok(value, label); checks++; }
 for (const ratio of [0, 0.25, 0.5, 0.75, 1]) {

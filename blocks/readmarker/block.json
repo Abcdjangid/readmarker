@@ -1,7 +1,7 @@
 {
  "apiVersion": 3,
  "name": "readmarker/readmarker",
- "version": "0.1.0",
+ "version": "1.0.0",
  "title": "ReadMarker",
  "description": "Display reading time, progress, word count, or remaining reading time.",
  "category": "widgets",

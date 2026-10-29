@@ -32,7 +32,7 @@ final class ReadMarker_Presets {
   $nonce = $request['readmarker_preset_nonce'] ?? null;
   $id = $request['readmarker_preset'] ?? null;
   $registry = self::registry();
-  if ( ! is_string($nonce) || ! wp_verify_nonce($nonce,'readmarker_apply_preset') || ! is_string($id) || ! isset($registry[$id]) || '1' !== ($request['readmarker_preset_confirm'] ?? null) ) { return false; }
+  if ( ! is_string($nonce) || ! wp_verify_nonce(sanitize_text_field($nonce),'readmarker_apply_preset') || ! is_string($id) || ! isset($registry[$id]) || '1' !== ($request['readmarker_preset_confirm'] ?? null) ) { return false; }
   $settings = $this->settings->normalize(array_merge($this->settings->get(),$registry[$id]['values']));
   update_option(ReadMarker_Settings::OPTION,$settings);
   // update_option also returns false for an unchanged configuration; verify the result.
@@ -42,7 +42,7 @@ final class ReadMarker_Presets {
  public function handle() {
   if ( ! current_user_can('manage_options') ) { return; }
   if ( 'POST' === (isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '') && isset($_POST['readmarker_preset']) ) {
-   // apply() verifies the dedicated nonce and strictly validates the registry ID and confirmation.
+   // apply() sanitizes and verifies the nonce, then strictly validates the registry ID and confirmation.
    // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Structured input is validated by apply(); unknown fields are not stored.
    $request = wp_unslash($_POST);
    $applied = $this->apply($request,'POST');

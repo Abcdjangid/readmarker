@@ -45,3 +45,17 @@ Desktop.ini
 /.phpunit.result.cache
 /.release/
 /.releases/
+
+# Local development and release work (kept on disk, not published)
+/tests/
+/tools/
+/reports/
+/audit-reports/
+
+# WordPress.org directory artwork; runtime CSS/JS/assets remain tracked
+/assets/icon-128x128.png
+/assets/icon-256x256.png
+/assets/banner.png
+/assets/banner-772x250.png
+/assets/banner-1544x500.png
+/assets/screenshot-*.png

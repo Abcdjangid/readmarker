@@ -2,7 +2,7 @@
 
 ReadMarker is a free, open-source WordPress plugin for reading time, reading progress, and reader preferences. All features are included, with no account, paid upgrade, analytics, or external service required.
 
-**Requirements:** WordPress 6.0 or later and PHP 7.4 or later. Current version: **0.1.0**.
+**Requirements:** WordPress 6.0 or later and PHP 7.4 or later. Current version: **1.0.0**.
 
 ## Features
 
@@ -72,48 +72,13 @@ Use **ReadMarker → Shortcodes** for copyable examples and previews. The **Read
 
 For complete usage, placement requirements, protected contexts, and theme limitations, see [readme.txt](readme.txt).
 
-ReadMarker was previously named ReadFlow. Existing `[readflow...]` shortcodes and `readflow/readflow` blocks remain supported through the same implementation. Saved settings, post overrides, and browser preferences keep their original storage keys. Documented ReadFlow hooks and JavaScript interfaces remain compatibility aliases; new integrations should use ReadMarker names. The GitHub repository URL remains unchanged.
-
-## Development and testing
-
-There is no build step or Node package installation. PHP, JavaScript, CSS, and block metadata are maintained directly.
-
-Keep the project at `wp-content/plugins/readmarker` inside a WordPress installation: the PHP test harness uses the surrounding WordPress core. Run commands from the plugin directory.
-
-```sh
-php tests/display-test.php
-```
-
-This runs the PHP regression suite, including calculator tests. It uses in-memory fixtures and does not load the site's database configuration or change saved settings.
-
-Run all JavaScript suites with Node.js. In PowerShell:
-
-```powershell
-Get-ChildItem tests/*-test.js | ForEach-Object {
-    node $_.FullName
-    if ($LASTEXITCODE -ne 0) { throw "JavaScript test failed" }
-}
-```
-
-On a POSIX shell:
-
-```sh
-for test in tests/*-test.js; do
-    node "$test" || exit 1
-done
-```
-
-JavaScript tests use DOM doubles. Browser checks are still needed for theme layout, keyboard interaction, clipboard permissions, and the block editor.
-
-Development tests and tools remain in this repository. Generated packages and reports under `.release/` are ignored. `tools/package.ps1` builds an allowlisted production ZIP; run it only when intentionally preparing a new package. The existing submitted ZIP should not be rebuilt as part of routine development.
-
-With the official Plugin Check plugin installed, `tools/plugin-check.php` can run its static checks through WP-CLI. See the development notes in [readme.txt](readme.txt). Static checks do not replace runtime or browser testing.
+ReadMarker was previously named ReadFlow. Existing `[readflow...]` shortcodes and `readflow/readflow` blocks remain supported through the same implementation. Saved settings, post overrides, and browser preferences keep their original storage keys. Documented ReadFlow hooks and JavaScript interfaces remain compatibility aliases; new integrations should use ReadMarker names.
 
 ## Issues and contributions
 
-Report reproducible bugs through [GitHub Issues](https://github.com/Abcdjangid/readflow/issues). Include WordPress and PHP versions, steps to reproduce, expected behavior, and the relevant theme or plugin context. Do not include credentials, private content, or database dumps.
+Report reproducible bugs through [GitHub Issues](https://github.com/Abcdjangid/readmarker/issues). Include WordPress and PHP versions, steps to reproduce, expected behavior, and the relevant theme or plugin context. Do not include credentials, private content, or database dumps.
 
-Keep pull requests focused, preserve existing behavior, and include relevant regression coverage. Run the PHP and JavaScript suites before proposing changes. Discuss larger changes in an issue first.
+Keep pull requests focused, preserve existing behavior, and describe how the changes were verified. Discuss larger changes in an issue first.
 
 ## License
 
